@@ -1,8 +1,17 @@
 const path = require('path');
+const fs = require('fs');
 const webpack = require('webpack');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const AddAssetPlugin = require('add-asset-html-webpack-plugin');
+
+const foolibPath = 'foolib-new';
+const targetPath = path.resolve(`node_modules/foolib`);
+
+if (fs.existsSync(targetPath)) {
+  fs.unlinkSync(targetPath);
+}
+
+fs.symlinkSync(path.resolve('..', foolibPath), targetPath, 'junction');
 
 module.exports = {
   entry: './src/index',
@@ -27,17 +36,17 @@ module.exports = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
     alias: {
-      foolib: require.resolve('foolib/lib/index')
+      foolib: path.resolve(`../${foolibPath}/lib/index`)
     }
   },
   plugins: [
     new webpack.DllReferencePlugin({
       context: __dirname,
       scope: 'foolib',
-      manifest: require('foolib/dist/manifest.json')
+      manifest: path.resolve(`../${foolibPath}/dist/manifest.json`)
     }),
     new HtmlWebpackPlugin(),
-    new AddAssetPlugin({ filepath: require.resolve('foolib/dist/foolib.js') })
+    new AddAssetPlugin({ filepath: path.resolve(`../${foolibPath}/dist/foolib.js`) })
   ],
   output: {
     filename: 'bundle.js',

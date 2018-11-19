@@ -6,7 +6,7 @@ function blah() {
 
   var el = document.createElement('div');
   document.body.appendChild(el);
-  el.innerText = code + '';
+  el.innerText = String(code);
 }
 
 blah();
