@@ -1,17 +1,19 @@
+require('dotenv/config');
+
 const path = require('path');
 const fs = require('fs');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const AddAssetPlugin = require('add-asset-html-webpack-plugin');
 
-const foolibPath = 'foolib-new';
-const targetPath = path.resolve(`node_modules/foolib`);
+const foolibPath = path.resolve(__dirname, '..', process.env.FOOLIB_PATH);
+const targetPath = path.resolve(__dirname, 'node_modules/foolib');
 
 if (fs.existsSync(targetPath)) {
   fs.unlinkSync(targetPath);
 }
 
-fs.symlinkSync(path.resolve('..', foolibPath), targetPath, 'junction');
+fs.symlinkSync(foolibPath, targetPath, 'junction');
 
 module.exports = {
   entry: './src/index',
@@ -36,17 +38,18 @@ module.exports = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
     alias: {
-      foolib: path.resolve(`../${foolibPath}/lib/index`)
+      //foolib$: '../../foolib-new/lib/index.js'
+
+      foolib$: path.join(foolibPath, 'lib/index.js')
     }
   },
   plugins: [
     new webpack.DllReferencePlugin({
-      context: __dirname,
-      scope: 'foolib',
-      manifest: path.resolve(`../${foolibPath}/dist/manifest.json`)
+      context: foolibPath,
+      manifest: path.join(foolibPath, 'dist/manifest.json')
     }),
     new HtmlWebpackPlugin(),
-    new AddAssetPlugin({ filepath: path.resolve(`../${foolibPath}/dist/foolib.js`) })
+    new AddAssetPlugin({ filepath: path.join(foolibPath, 'dist/foolib.js') })
   ],
   output: {
     filename: 'bundle.js',
